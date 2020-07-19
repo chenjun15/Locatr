@@ -15,9 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -31,12 +33,15 @@ import java.util.List;
 
 public class LocatrFragment extends Fragment {
     private static final String TAG = "LocatrFragment";
-    private static final String[] LOCATION_PERMISSIONS = new String[]{
+    private static final String DIALOG_PERMISSION = "DialogPermission";
+
+    public static final String[] LOCATION_PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
     };
-    private static final int REQUEST_LOCATION_PERMISSIONS = 0;
+    public static final int REQUEST_LOCATION_PERMISSIONS = 0;
 
+    private ProgressBar mProgressBar;
     private ImageView mImageView;
     private GoogleApiClient mClient;
 
@@ -68,6 +73,7 @@ public class LocatrFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_locatr, container, false);
 
+        mProgressBar = v.findViewById(R.id.progress_bar);
         mImageView = v.findViewById(R.id.image);
 
         return v;
@@ -100,10 +106,15 @@ public class LocatrFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case R.id.action_locate:
-            if (hasLocationPermission())
+            if (hasLocationPermission()) {
                 findImage();
-            else
-                requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSIONS);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), LOCATION_PERMISSIONS[0])) {
+                    LocationApplyFragment fragment = LocationApplyFragment.newInstance(this);
+                    fragment.show(getFragmentManager(), DIALOG_PERMISSION);
+                } else
+                    requestPermissions(LOCATION_PERMISSIONS, REQUEST_LOCATION_PERMISSIONS);
+            }
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -114,6 +125,7 @@ public class LocatrFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
         case REQUEST_LOCATION_PERMISSIONS:
+            Log.i(TAG, "onRequestPermissionsResult: requestCode=REQUEST_LOCATION_PERMISSIONS, hasLocationPermission()=" + hasLocationPermission());
             if (hasLocationPermission())
                 findImage();
         default:
@@ -146,6 +158,12 @@ public class LocatrFragment extends Fragment {
         private Bitmap mBitmap;
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected Void doInBackground(Location... locations) {
             FlickrFetchr fetchr = new FlickrFetchr();
             List<GalleryItem> items = fetchr.searchPhotos(locations[0]);
@@ -166,6 +184,7 @@ public class LocatrFragment extends Fragment {
         @Override
         protected void onPostExecute(Void aVoid) {
             mImageView.setImageBitmap(mBitmap);
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

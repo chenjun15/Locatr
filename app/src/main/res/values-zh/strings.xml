@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Locatr</string>
+    <string name="search">为你找一张图片</string>
+    <string name="permission_query_msg">Locatr使用定位数据寻找你附近发布在Flickr的照片</string>
+    <string name="grant">授权</string>
+    <string name="reject">拒绝</string>
+</resources>
