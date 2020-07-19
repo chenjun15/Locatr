@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Locatr</string>
     <string name="search">Find an image near you</string>
+    <string name="permission_query_msg">Locatr uses location data to find images near you on Flickr.</string>
+    <string name="grant">Grant</string>
+    <string name="reject">Reject</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
